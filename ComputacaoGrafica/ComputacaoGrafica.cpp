@@ -1,12 +1,14 @@
 #include <iostream>
+#include <vector>
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "Mesh.h"
 
-GLuint VAO, VBO, IBO, programa;
-
+GLuint programa;
+std::vector<Mesh*> listMesh;
 
 //Vertex Shader
 static const char* vShader = "                                \n\
@@ -48,22 +50,17 @@ void CriaTriangulos() {
 		0, 2, 3
 	};
 
-	glGenVertexArrays(1, &VAO); //Cria o VAO
-	glBindVertexArray(VAO); //Coloca o VAO em contexto
 
-	glGenBuffers(1, &IBO); //Cria o IBO
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO); //Coloca o IBO em contexto
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); //Explica o valor do Array
+	Mesh* tri1 = new Mesh();
+	Mesh* tri2 = new Mesh();
 
-	glGenBuffers(1, &VBO); //Cria o VBO
-	glBindBuffer(GL_ARRAY_BUFFER, VBO); //Coloca o VBO em contexto
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //Explica o valor do Array
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); //Explica os valores de x e y
-	glEnableVertexAttribArray(0);
+	tri1->CreateMesh(vertices, sizeof(vertices), indices, sizeof(indices));
+	tri2->CreateMesh(vertices, sizeof(vertices), indices, sizeof(indices));
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //remover do contexto o IBO
-	glBindBuffer(GL_ARRAY_BUFFER, 0); //remover do contexto o VBO
-	glBindVertexArray(0); //remover do contexto o VAO
+
+	listMesh.push_back(tri1);
+	listMesh.push_back(tri2);
+
 }
 
 
@@ -138,14 +135,8 @@ int main() {
 
 		//Desenha o triangulo
 		glUseProgram(programa);
-		glBindVertexArray(VAO);
+		listMesh[0]->RenderMesh();
 
-		/*
-		* Desenha o triangulo 3D
-		*/
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO); //Coloca o IBO em contexto
-		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); //remover do contexto o IBO
 
 		/*
 		* Alterando a cor do triangulo
@@ -155,7 +146,6 @@ int main() {
 		float g = (float)rand() / RAND_MAX;
 		float b = (float)rand() / RAND_MAX;
 		glUniform3f(uniColor, r, g, b);
-
 		/*
 		* Mover nosso triangulo
 		*/
@@ -176,6 +166,8 @@ int main() {
 
 		//Movimentações do triangulo
 		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
+		//Movimentações do triangulo
+		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
 
 		//Tamanho do triangulo
 		model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
@@ -184,6 +176,40 @@ int main() {
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
 
 		GLuint uniModel = glGetUniformLocation(programa, "model");
+		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
+
+		listMesh[1]->RenderMesh();
+		glUniform3f(uniColor, r, g, b);
+
+		/*
+* Mover nosso triangulo
+*/
+		if (triOffset >= maxOffset || triOffset <= minOffset)
+			direction = !direction;
+		triOffset += direction ? incOffset : incOffset * -1;
+
+		if (size >= maxSize || size <= minSize)
+			sizeDirection = !sizeDirection;
+		size += sizeDirection ? incSize : incSize * -1;
+
+		if (angle >= maxAngle || angle <= minAngle)
+			angleDirection = !angleDirection;
+		angle += angleDirection ? incAngle : incAngle * -1;
+
+		//criar uma matriz 4x4 (1.0f)
+		//glm::mat4 model(1.0f);
+
+		//Movimentações do triangulo
+		//Movimentações do triangulo
+		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
+
+		//Tamanho do triangulo
+		model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
+
+		//Rotação
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		//GLuint uniModel = glGetUniformLocation(programa, "model");
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		glBindVertexArray(0);
