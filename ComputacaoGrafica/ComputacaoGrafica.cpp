@@ -34,20 +34,40 @@ void main(){                                                  \n\
 	color = vColor;                                           \n\
 }";
 
+
 void CriaTriangulos() {
 	GLfloat vertices[] = {
 		//x , y		
-		-1.0f, -1.0f, 0.0f,         //Vertice 0 (Preto)
-		0.0f, 1.0f, 0.0f,           //Vertice 1 (Verde)
-		1.0f, -1.0f, 0.0f,          //Vertice 2 (Vermelho)
-		0.0f, 0.0f, 1.0f            //Vertice 3 (Azul)
+		-1.0f, 1.0f, 1.0f,         //Vertice 0 (Preto)
+		-1.0f, -1.0f, 1.0f,           //Vertice 1 (Verde)
+		1.0f, 1.0f, 1.0f,          //Vertice 2 (Vermelho)
+		1.0f, -1.0f, 1.0f,            //Vertice 3 (Azul)
+		-1.0f, 1.0f, -1.0f,            //Vertice 3 (Azul)
+		-1.0f, -1.0f, -1.0f,            //Vertice 3 (Azul)
+		1.0f, 1.0f, -1.0f,            //Vertice 3 (Azul)
+		1.0f, -1.0f, -1.0f          //Vertice 2 (Vermelho)
+
 	};
 
 	GLuint indices[] = {
+		0, 1, 5,
+		0, 4, 5,
+
+		1, 3, 5,
+		3, 5, 7,
+
+		4, 5, 7,
+		4, 6, 7,
+
+		0, 2, 6,
+		0, 4, 6,
+
+		2, 3, 6,
+		3, 6, 7,
+
 		0, 1, 2,
-		1, 2, 3,
-		0, 1, 3,
-		0, 2, 3
+		1, 2, 3
+
 	};
 
 
@@ -149,13 +169,13 @@ int main() {
 		/*
 		* Mover nosso triangulo
 		*/
-		if (triOffset >= maxOffset || triOffset <= minOffset)
-			direction = !direction;
-		triOffset += direction ? incOffset : incOffset * -1;
+		//if (triOffset >= maxOffset || triOffset <= minOffset)
+		//	direction = !direction;
+		//triOffset += direction ? incOffset : incOffset * -1;
 
-		if (size >= maxSize || size <= minSize)
-			sizeDirection = !sizeDirection;
-		size += sizeDirection ? incSize : incSize * -1;
+		//if (size >= maxSize || size <= minSize)
+		//	sizeDirection = !sizeDirection;
+		//size += sizeDirection ? incSize : incSize * -1;
 
 		if (angle >= maxAngle || angle <= minAngle)
 			angleDirection = !angleDirection;
@@ -164,53 +184,15 @@ int main() {
 		//criar uma matriz 4x4 (1.0f)
 		glm::mat4 model(1.0f);
 
-		//Movimentações do triangulo
-		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
-		//Movimentações do triangulo
-		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
-
 		//Tamanho do triangulo
 		model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
 
 		//Rotação
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 1.0f));
 
 		GLuint uniModel = glGetUniformLocation(programa, "model");
 		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
-		listMesh[1]->RenderMesh();
-		glUniform3f(uniColor, r, g, b);
-
-		/*
-* Mover nosso triangulo
-*/
-		if (triOffset >= maxOffset || triOffset <= minOffset)
-			direction = !direction;
-		triOffset += direction ? incOffset : incOffset * -1;
-
-		if (size >= maxSize || size <= minSize)
-			sizeDirection = !sizeDirection;
-		size += sizeDirection ? incSize : incSize * -1;
-
-		if (angle >= maxAngle || angle <= minAngle)
-			angleDirection = !angleDirection;
-		angle += angleDirection ? incAngle : incAngle * -1;
-
-		//criar uma matriz 4x4 (1.0f)
-		//glm::mat4 model(1.0f);
-
-		//Movimentações do triangulo
-		//Movimentações do triangulo
-		model = glm::translate(model, glm::vec3(triOffset, triOffset, 0.0f));
-
-		//Tamanho do triangulo
-		model = glm::scale(model, glm::vec3(0.4, 0.4, 0.4));
-
-		//Rotação
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		//GLuint uniModel = glGetUniformLocation(programa, "model");
-		glUniformMatrix4fv(uniModel, 1, GL_FALSE, glm::value_ptr(model));
 
 		glBindVertexArray(0);
 		glUseProgram(0);
